@@ -18,13 +18,15 @@ This skill provides guidance for using the ZipTax MCP server to look up US and C
 
 ## Prerequisites
 
-- A ZipTax API key, configured via the `X-API-KEY` header in your MCP client settings
+- A ZipTax API key from https://platform.zip.tax
 - The ZipTax MCP server connected at `https://mcp.zip-tax.com`
 
 If the user hasn't connected the ZipTax MCP server yet, guide them to:
 
 1. Get an API key at https://platform.zip.tax
-2. Add the MCP server with URL `https://mcp.zip-tax.com` and their API key in the `X-API-KEY` header
+2. Connect the MCP server using one of these authentication methods:
+   - **Header auth**: Set URL to `https://mcp.zip-tax.com/` and add their API key in the `X-API-KEY` header
+   - **URL parameter auth**: Set URL to `https://mcp.zip-tax.com/?key=YOUR_API_KEY` with no additional headers
 
 ## Available Tools
 
@@ -154,7 +156,7 @@ When the user asks about taxability for a specific product category:
 
 | Error Message | Meaning | Action |
 |---|---|---|
-| "Missing API key" | No `X-API-KEY` or `Authorization` header configured | Ask the user to verify their MCP client configuration includes the API key header |
+| "Missing API key" | No API key provided via header or URL parameter | Ask the user to verify their MCP client configuration includes the API key (via `X-API-KEY` header, `Authorization` header, or `?key=` URL parameter) |
 | "At least one of postalcode, address, or lat/lng is required" | No location was provided | Ask the user for a location (ZIP code, address, or coordinates) |
 | "ZipTax API error" | The underlying API returned an error | Check the error details — could be an invalid key, expired account, or rate limit. Direct the user to https://platform.zip.tax |
 
