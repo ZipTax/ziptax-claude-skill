@@ -36,30 +36,34 @@ Looks up sales and use tax rates for a US or Canadian location. Returns jurisdic
 
 #### Choosing the Right Parameters
 
-Use the most specific input available for the best results:
+Use the most precise input available:
 
-- **Street address** (`address` + `city` + `state` + `postalcode`): Most precise. Returns door-level rates including city and district taxes. Requires a geo-enabled account.
-- **ZIP code only** (`postalcode`): Fast and simple. Sufficient when city/district-level precision is not needed.
-- **Coordinates** (`lat` + `lng`): Useful for mobile or mapping applications. Requires a geo-enabled account.
+- **Street address** (`address`): The recommended default. ZipTax geocodes the address down to the rooftop and returns the single rate that applies at that location, adjusted for unincorporated areas and special tax jurisdictions. Use this whenever the user has a shipping address, billing address, or physical storefront.
+- **Coordinates** (`lat` + `lng`): Same door-level precision as an address. Use this when coordinates are already known, such as in mobile or mapping applications.
+- **ZIP code only** (`postalcode`): The least precise option, and a fallback rather than a shortcut. A postal code lookup returns *every* rate that overlaps the ZIP rather than one authoritative rate, does not adjust for unincorporated areas or special tax jurisdictions, and a single ZIP can span multiple cities, counties, and districts. Use it only when no street address or coordinates are available. For calculating tax on an order or filing returns, always prefer `address` or `lat`/`lng`.
 
-Always include `postalcode` when possible, even alongside `address`, for the most reliable results.
+All three lookup methods are available on every ZipTax plan, including the free tier. Do not tell the user that address or coordinate lookups require an upgrade.
+
+Some parameters *are* plan-gated and return a 403 when the account lacks the entitlement: `country_code=CA` (code 112), `taxability_code` (code 113), and `historical`. Each requires a Pro or Enterprise plan.
 
 #### Parameters
 
 | Parameter | Description | When to Use |
 |---|---|---|
-| `postalcode` | US 5-digit ZIP or Canadian postal code | Always include when available |
-| `address` | Full street address | When precise door-level rates are needed |
-| `state` | Two-letter state/province code (e.g., `CA`, `ON`) | To disambiguate or filter results |
+| `address` | Full street address | Preferred. The only location input needed for a door-level rate |
+| `lat` / `lng` | Latitude and longitude | When coordinates are already known |
+| `postalcode` | US 5-digit ZIP or Canadian postal code | Fallback only, when no address or coordinates are available |
+| `state` | Two-letter state/province code (e.g., `CA`, `ON`) | To disambiguate a postal code lookup |
 | `city` | City name | To disambiguate within a ZIP code |
 | `county` | County name | Rarely needed; helps with unincorporated areas |
-| `country_code` | `US` (default) or `CA` | Set to `CA` for Canadian lookups |
-| `lat` / `lng` | Latitude and longitude | For coordinate-based lookups |
-| `historical` | Period in `YYYYMM` format | For past tax rates (e.g., `202312`) |
-| `adjustment` | Set to `auto` | For unincorporated area adjustments |
-| `taxability_code` | Product taxability code (TIC) | For product-specific tax rules |
+| `country_code` | `US` (default) or `CA` | Set to `CA` for Canadian lookups. Pro or Enterprise plan |
+| `historical` | Period in `YYYYMM` format | For past tax rates (e.g., `202312`). Lookback is limited to the past 12 months. Pro or Enterprise plan |
+| `adjustment` | Set to `auto` | For state-specific unincorporated area adjustments |
+| `taxability_code` | Product taxability code (TIC) | For product-specific tax rules. Pro or Enterprise plan |
 | `sat_item_total` | Item total amount | For Tennessee Single Article Tax |
 | `format` | `json` (default) or `xml` | Almost always leave as default |
+
+These are the parameter names accepted by the `lookup_tax_rate` MCP tool, which uses `snake_case`. The underlying REST API uses `camelCase` query parameters (`countryCode`, `taxabilityCode`) for the same fields. Use the `snake_case` names above when calling the MCP tool, and the `camelCase` names when reading the [REST API reference](https://docs.zip.tax/guides/rest-api/overview).
 
 #### Interpreting the Response
 
@@ -117,19 +121,26 @@ Use this tool when the user asks about their API usage, remaining quota, account
 
 ### Basic Tax Lookup by Address
 
-When the user provides a street address:
+This is the default path. When the user provides a street address:
 
-1. Parse the address into components (street, city, state, ZIP)
-2. Call `lookup_tax_rate` with `address`, `city`, `state`, and `postalcode`
-3. Present the total rate and jurisdiction breakdown
+1. Call `lookup_tax_rate` with the full address in `address`. It is the only location input required
+2. Present the total rate and jurisdiction breakdown
+3. Confirm the location resolved correctly using `normalizedAddress` from `addressDetail`
 
-### Basic Tax Lookup by ZIP Code
+### Tax Lookup by Coordinates
 
-When the user provides only a ZIP code:
+When the user provides coordinates, or the calling application already has them:
+
+1. Call `lookup_tax_rate` with `lat` and `lng`
+2. Present the total rate and jurisdiction breakdown
+
+### Fallback Tax Lookup by ZIP Code
+
+Only when the user has no street address or coordinates:
 
 1. Call `lookup_tax_rate` with `postalcode`
-2. Note that results may cover a broader area than a single city
-3. Present the total rate and jurisdiction breakdown
+2. Present the total rate and jurisdiction breakdown
+3. Tell the user the result is not door-level accurate, since a ZIP can span several cities, counties, and districts. If they need an authoritative rate for collection or filing, ask for a street address and repeat the lookup with `address`
 
 ### Canadian Tax Lookup
 
@@ -137,6 +148,8 @@ When the user asks about Canadian sales tax:
 
 1. Call `lookup_tax_rate` with `postalcode` and `country_code` set to `CA`
 2. Present the results, noting that Canadian jurisdictions use GST/HST/PST structures
+
+Canadian rates require a Pro or Enterprise plan. A response code of 112 means the account is not entitled to international rates.
 
 ### Historical Tax Rate Lookup
 
@@ -152,6 +165,8 @@ When the user asks about taxability for a specific product category:
 1. Call `lookup_tax_rate` with the location parameters plus the appropriate `taxability_code`
 2. Explain that product taxability codes (TICs) vary by jurisdiction and product type
 
+Product rules require a Pro or Enterprise plan. A response code of 113 means the account is not entitled to product rate rules.
+
 ## Error Handling
 
 | Error Message | Meaning | Action |
@@ -162,6 +177,6 @@ When the user asks about taxability for a specific product category:
 
 ## Additional Resources
 
-- ZipTax API documentation: https://developers.zip.tax
+- ZipTax API documentation: https://docs.zip.tax
 - Get an API key: https://platform.zip.tax
-- ZipTax MCP server repository: https://github.com/ZipTax/ziptax-mcp
+- ZipTax MCP server reference: https://docs.zip.tax/guides/agents-and-llms/mcp-server

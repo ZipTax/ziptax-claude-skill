@@ -1,6 +1,6 @@
 # ZipTax Sales Tax Skill
 
-A [Claude Skill](https://docs.claude.com/en/docs/claude-code/skills) that teaches Claude how to effectively use the [ZipTax MCP server](https://github.com/ZipTax/ziptax-mcp) for US and Canadian sales tax rate lookups.
+A [Claude Skill](https://docs.claude.com/en/docs/claude-code/skills) that teaches Claude how to effectively use the [ZipTax MCP server](https://docs.zip.tax/guides/agents-and-llms/mcp-server) for US and Canadian sales tax rate lookups.
 
 ## What This Skill Does
 
@@ -126,13 +126,13 @@ Once the skill and MCP server are configured, try:
 
 | Tool | Description |
 |---|---|
-| `lookup_tax_rate` | Look up sales and use tax rates by postal code, address, or coordinates |
+| `lookup_tax_rate` | Look up sales and use tax rates by address, coordinates, or postal code |
 | `get_account_metrics` | Get account usage metrics and quota information |
 
 ## Resources
 
-- [ZipTax API Documentation](https://developers.zip.tax)
-- [ZipTax MCP Server](https://github.com/ZipTax/ziptax-mcp)
+- [ZipTax API Documentation](https://docs.zip.tax)
+- [ZipTax MCP Server](https://docs.zip.tax/guides/agents-and-llms/mcp-server)
 - [Get an API Key](https://platform.zip.tax)
 - [Claude Skills Documentation](https://docs.claude.com/en/docs/claude-code/skills)
 - [Agent Skills Standard](https://agentskills.io)
