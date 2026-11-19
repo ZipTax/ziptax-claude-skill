@@ -1,20 +1,21 @@
-# ZipTax Sales Tax Skill
+# Ziptax Sales Tax Skill
 
-A [Claude Skill](https://docs.claude.com/en/docs/claude-code/skills) that teaches Claude how to effectively use the [ZipTax MCP server](https://docs.zip.tax/guides/agents-and-llms/mcp-server) for US and Canadian sales tax rate lookups.
+A [Claude Skill](https://docs.claude.com/en/docs/claude-code/skills) that teaches Claude how to effectively use the [Ziptax MCP server](https://docs.zip.tax/guides/agents-and-llms/mcp-server) for US and Canadian sales tax rate lookups.
 
 ## What This Skill Does
 
-This skill enhances Claude's ability to work with the ZipTax MCP server by providing:
+This skill enhances Claude's ability to work with the Ziptax MCP server by providing:
 
 - **Workflow guidance** for common tax lookup scenarios (by address, ZIP code, coordinates, or historical period)
 - **Parameter selection logic** so Claude chooses the right inputs for the most accurate results
 - **Response interpretation** so Claude presents tax rate breakdowns clearly and completely
 - **Error handling** with actionable resolution steps
+- **Usage and billing guidance** so Claude avoids wasted billable API calls and checks usage before bulk lookups
 
 ## Prerequisites
 
-- A ZipTax API key from [platform.zip.tax](https://platform.zip.tax)
-- The ZipTax MCP server connected at `https://mcp.zip-tax.com` (via header or URL parameter auth)
+- A Ziptax API key from [platform.zip.tax](https://platform.zip.tax)
+- The Ziptax MCP server connected at `https://mcp.zip-tax.com` (API key sent in a request header)
 
 ## Installation
 
@@ -42,13 +43,9 @@ cp SKILL.md .claude/skills/ziptax/SKILL.md
 
 ## MCP Server Configuration
 
-Configure the ZipTax MCP server in your MCP client. There are two authentication methods:
+Configure the Ziptax MCP server in your MCP client. Pass your API key in the `X-API-KEY` header, or as a Bearer token in the `Authorization` header (`Authorization: Bearer your_api_key`):
 
-### Option 1: Header Authentication
-
-Pass your API key in the `X-API-KEY` header:
-
-#### Claude Code
+### Claude Code
 
 ```json
 {
@@ -62,7 +59,7 @@ Pass your API key in the `X-API-KEY` header:
 }
 ```
 
-#### Claude Desktop
+### Claude Desktop
 
 Add to `claude_desktop_config.json`:
 
@@ -80,37 +77,7 @@ Add to `claude_desktop_config.json`:
 }
 ```
 
-### Option 2: URL Parameter Authentication
-
-Embed your API key directly in the URL as a `key` parameter. This is useful for MCP clients that don't support custom headers:
-
-#### Claude Code
-
-```json
-{
-  "ziptax": {
-    "type": "http",
-    "url": "https://mcp.zip-tax.com/?key=your_api_key"
-  }
-}
-```
-
-#### Claude Desktop
-
-Add to `claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "ziptax": {
-      "type": "http",
-      "url": "https://mcp.zip-tax.com/?key=your_api_key"
-    }
-  }
-}
-```
-
-Replace `your_api_key` with your ZipTax API key from [platform.zip.tax](https://platform.zip.tax).
+Replace `your_api_key` with your Ziptax API key from [platform.zip.tax](https://platform.zip.tax).
 
 ## Example Prompts
 
@@ -120,23 +87,26 @@ Once the skill and MCP server are configured, try:
 - "Look up the tax rate for ZIP code 10001"
 - "What was the sales tax rate in Austin, TX in December 2023?"
 - "Is shipping taxable in California?"
-- "Check my ZipTax API usage"
+- "Check my Ziptax API usage"
 
 ## Tools Provided by the MCP Server
 
 | Tool | Description |
 |---|---|
 | `lookup_tax_rate` | Look up sales and use tax rates by address, coordinates, or postal code |
-| `get_account_metrics` | Get account usage metrics and quota information |
+| `get_account_metrics` | Get account usage metrics and limits |
+
+Each `lookup_tax_rate` call is one billable API call on your API key, the same as calling the Ziptax API directly. A lookup that finds no matching rate still counts, but calls rejected before the lookup runs (missing or invalid key, invalid parameters, plan restrictions, rate limits) don't. `get_account_metrics` is free. See [Pricing and billing](https://docs.zip.tax/guides/reference/pricing-and-billing) for how calls are counted, and [zip.tax/pricing](https://zip.tax/pricing) for plans.
 
 ## Resources
 
-- [ZipTax API Documentation](https://docs.zip.tax)
-- [ZipTax MCP Server](https://docs.zip.tax/guides/agents-and-llms/mcp-server)
+- [Ziptax API Documentation](https://docs.zip.tax)
+- [Ziptax MCP Server](https://docs.zip.tax/guides/agents-and-llms/mcp-server)
+- [Ziptax Pricing and Billing](https://docs.zip.tax/guides/reference/pricing-and-billing)
 - [Get an API Key](https://platform.zip.tax)
 - [Claude Skills Documentation](https://docs.claude.com/en/docs/claude-code/skills)
 - [Agent Skills Standard](https://agentskills.io)
 
 ## License
 
-Apache License 2.0 — see [LICENSE](LICENSE) for details.
+Apache License 2.0. See [LICENSE](LICENSE) for details.
