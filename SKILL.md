@@ -129,7 +129,7 @@ Tax rates for 200 Spectrum Center Dr, Irvine, CA 92618:
 
 Returns account usage metrics and quota information. Takes no parameters. Authentication is handled via the API key header.
 
-This call is free and doesn't count toward billable API calls. Use this tool when the user asks about their API usage, how many calls they have left, account status, or rate limits. Also suggest it before bulk or looped lookups, so the user can see how many billable API calls they've used this period.
+This call is free and doesn't count toward billable API calls. Use this tool when the user asks about their API usage and limits, account status, or rate limits. Also suggest it before bulk or looped lookups, so the user can check their usage and limits.
 
 ## Common Workflows
 
