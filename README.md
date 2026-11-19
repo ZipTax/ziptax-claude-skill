@@ -10,6 +10,7 @@ This skill enhances Claude's ability to work with the ZipTax MCP server by provi
 - **Parameter selection logic** so Claude chooses the right inputs for the most accurate results
 - **Response interpretation** so Claude presents tax rate breakdowns clearly and completely
 - **Error handling** with actionable resolution steps
+- **Usage and billing guidance** so Claude avoids wasted billable API calls and checks usage before bulk lookups
 
 ## Prerequisites
 
@@ -129,10 +130,13 @@ Once the skill and MCP server are configured, try:
 | `lookup_tax_rate` | Look up sales and use tax rates by address, coordinates, or postal code |
 | `get_account_metrics` | Get account usage metrics and quota information |
 
+Each `lookup_tax_rate` call is one billable API call on your API key, the same as calling the Ziptax API directly. `get_account_metrics` is free. See [Pricing and billing](https://docs.zip.tax/guides/reference/pricing-and-billing) for how calls are counted, and [zip.tax/pricing](https://zip.tax/pricing) for plans.
+
 ## Resources
 
 - [ZipTax API Documentation](https://docs.zip.tax)
 - [ZipTax MCP Server](https://docs.zip.tax/guides/agents-and-llms/mcp-server)
+- [Ziptax Pricing and Billing](https://docs.zip.tax/guides/reference/pricing-and-billing)
 - [Get an API Key](https://platform.zip.tax)
 - [Claude Skills Documentation](https://docs.claude.com/en/docs/claude-code/skills)
 - [Agent Skills Standard](https://agentskills.io)

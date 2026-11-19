@@ -7,9 +7,11 @@ description: >
   tax rate by address, tax rate by coordinates, Canadian sales tax,
   product taxability, tax codes (TIC), Tennessee Single Article Tax,
   historical tax rates, unincorporated area adjustments, or account
-  usage metrics for ZipTax. Also use when the user mentions ZipTax,
-  zip-tax, or zip.tax. This skill teaches Claude how to use the
-  lookup_tax_rate and get_account_metrics MCP tools effectively.
+  usage metrics for Ziptax. Also use when the user asks about Ziptax
+  billing, API usage, billable API calls, or how many calls they have
+  left, or mentions ZipTax, zip-tax, or zip.tax. This skill teaches
+  Claude how to use the lookup_tax_rate and get_account_metrics MCP
+  tools effectively and how to avoid wasted billable API calls.
 ---
 
 # ZipTax Sales Tax Lookup
@@ -27,6 +29,20 @@ If the user hasn't connected the ZipTax MCP server yet, guide them to:
 2. Connect the MCP server using one of these authentication methods:
    - **Header auth**: Set URL to `https://mcp.zip-tax.com/` and add their API key in the `X-API-KEY` header
    - **URL parameter auth**: Set URL to `https://mcp.zip-tax.com/?key=YOUR_API_KEY` with no additional headers
+
+## Usage and billing
+
+Each `lookup_tax_rate` call is one billable API call on the user's API key, the same as calling the Ziptax API directly. This is true whether the lookup uses an address, lat/lng, or a postal code, and whether or not the result was cached.
+
+`get_account_metrics` is free. It doesn't count toward billable API calls.
+
+For how billable API calls are counted, see [Pricing and billing](https://docs.zip.tax/guides/reference/pricing-and-billing). For plans and prices, see [zip.tax/pricing](https://zip.tax/pricing). Do not quote prices or plan allowances; link to the pricing page instead.
+
+### Avoid wasted calls
+
+- **Reuse results.** If you already looked up a location with the same parameters in this conversation, reuse that result instead of calling `lookup_tax_rate` again.
+- **No speculative lookups.** Only call `lookup_tax_rate` for a location the user actually needs. Do not make extra lookups to compare inputs or "double check" a result.
+- **Plan bulk work first.** Before looking up many addresses, tell the user how many billable API calls it will take (one per lookup). Offer to check their usage with `get_account_metrics` first.
 
 ## Available Tools
 
@@ -115,7 +131,7 @@ Tax rates for 200 Spectrum Center Dr, Irvine, CA 92618:
 
 Returns account usage metrics and quota information. Takes no parameters — authentication is handled via the API key header.
 
-Use this tool when the user asks about their API usage, remaining quota, account status, or rate limits.
+This call is free and doesn't count toward billable API calls. Use this tool when the user asks about their API usage, how many calls they have left, account status, or rate limits. Also suggest it before bulk or looped lookups, so the user can confirm they have enough billable API calls left.
 
 ## Common Workflows
 
@@ -140,7 +156,7 @@ Only when the user has no street address or coordinates:
 
 1. Call `lookup_tax_rate` with `postalcode`
 2. Present the total rate and jurisdiction breakdown
-3. Tell the user the result is not door-level accurate, since a ZIP can span several cities, counties, and districts. If they need an authoritative rate for collection or filing, ask for a street address and repeat the lookup with `address`
+3. Tell the user the result is not door-level accurate, since a ZIP can span several cities, counties, and districts. If they need an authoritative rate for collection or filing, ask for a street address and repeat the lookup with `address`. Tell them the repeat lookup is a second billable API call
 
 ### Canadian Tax Lookup
 
