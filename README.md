@@ -15,7 +15,7 @@ This skill enhances Claude's ability to work with the ZipTax MCP server by provi
 ## Prerequisites
 
 - A ZipTax API key from [platform.zip.tax](https://platform.zip.tax)
-- The ZipTax MCP server connected at `https://mcp.zip-tax.com` (via header or URL parameter auth)
+- The Ziptax MCP server connected at `https://mcp.zip-tax.com` (API key sent in a request header)
 
 ## Installation
 
@@ -43,13 +43,9 @@ cp SKILL.md .claude/skills/ziptax/SKILL.md
 
 ## MCP Server Configuration
 
-Configure the ZipTax MCP server in your MCP client. There are two authentication methods:
+Configure the Ziptax MCP server in your MCP client. Pass your API key in the `X-API-KEY` header, or as a Bearer token in the `Authorization` header (`Authorization: Bearer your_api_key`):
 
-### Option 1: Header Authentication
-
-Pass your API key in the `X-API-KEY` header:
-
-#### Claude Code
+### Claude Code
 
 ```json
 {
@@ -63,7 +59,7 @@ Pass your API key in the `X-API-KEY` header:
 }
 ```
 
-#### Claude Desktop
+### Claude Desktop
 
 Add to `claude_desktop_config.json`:
 
@@ -76,36 +72,6 @@ Add to `claude_desktop_config.json`:
       "headers": {
         "X-API-KEY": "your_api_key"
       }
-    }
-  }
-}
-```
-
-### Option 2: URL Parameter Authentication
-
-Embed your API key directly in the URL as a `key` parameter. This is useful for MCP clients that don't support custom headers:
-
-#### Claude Code
-
-```json
-{
-  "ziptax": {
-    "type": "http",
-    "url": "https://mcp.zip-tax.com/?key=your_api_key"
-  }
-}
-```
-
-#### Claude Desktop
-
-Add to `claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "ziptax": {
-      "type": "http",
-      "url": "https://mcp.zip-tax.com/?key=your_api_key"
     }
   }
 }
