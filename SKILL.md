@@ -8,8 +8,8 @@ description: >
   product taxability, tax codes (TIC), Tennessee Single Article Tax,
   historical tax rates, unincorporated area adjustments, or account
   usage metrics for Ziptax. Also use when the user asks about Ziptax
-  billing, API usage, billable API calls, or how many calls they have
-  left, or mentions ZipTax, zip-tax, or zip.tax. This skill teaches
+  billing, API usage, or billable API calls, or mentions ZipTax,
+  zip-tax, or zip.tax. This skill teaches
   Claude how to use the lookup_tax_rate and get_account_metrics MCP
   tools effectively and how to avoid wasted billable API calls.
 ---
@@ -127,7 +127,7 @@ Tax rates for 200 Spectrum Center Dr, Irvine, CA 92618:
 
 ### get_account_metrics
 
-Returns account usage metrics and quota information. Takes no parameters. Authentication is handled via the API key header.
+Returns account usage metrics and limits. Takes no parameters. Authentication is handled via the API key header.
 
 This call is free and doesn't count toward billable API calls. Use this tool when the user asks about their API usage and limits, account status, or rate limits. Also suggest it before bulk or looped lookups, so the user can check their usage and limits.
 

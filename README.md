@@ -94,7 +94,7 @@ Once the skill and MCP server are configured, try:
 | Tool | Description |
 |---|---|
 | `lookup_tax_rate` | Look up sales and use tax rates by address, coordinates, or postal code |
-| `get_account_metrics` | Get account usage metrics and quota information |
+| `get_account_metrics` | Get account usage metrics and limits |
 
 Each `lookup_tax_rate` call is one billable API call on your API key, the same as calling the Ziptax API directly. A lookup that finds no matching rate still counts, but calls rejected before the lookup runs (missing or invalid key, invalid parameters, plan restrictions, rate limits) don't. `get_account_metrics` is free. See [Pricing and billing](https://docs.zip.tax/guides/reference/pricing-and-billing) for how calls are counted, and [zip.tax/pricing](https://zip.tax/pricing) for plans.
 
