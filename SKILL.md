@@ -1,7 +1,7 @@
 ---
 name: ziptax
 description: >
-  Look up US and Canadian sales tax rates using the ZipTax MCP server.
+  Look up US and Canadian sales tax rates using the Ziptax MCP server.
   Use this skill whenever the user asks about sales tax rates, tax lookups,
   tax jurisdictions, use tax, sales tax compliance, tax rate by ZIP code,
   tax rate by address, tax rate by coordinates, Canadian sales tax,
@@ -14,23 +14,23 @@ description: >
   tools effectively and how to avoid wasted billable API calls.
 ---
 
-# ZipTax Sales Tax Lookup
+# Ziptax Sales Tax Lookup
 
-This skill provides guidance for using the ZipTax MCP server to look up US and Canadian sales tax rates. The MCP server exposes two tools: `lookup_tax_rate` and `get_account_metrics`.
+This skill provides guidance for using the Ziptax MCP server to look up US and Canadian sales tax rates. The MCP server exposes two tools: `lookup_tax_rate` and `get_account_metrics`.
 
 ## Prerequisites
 
-- A ZipTax API key from https://platform.zip.tax
-- The ZipTax MCP server connected at `https://mcp.zip-tax.com`
+- A Ziptax API key from https://platform.zip.tax
+- The Ziptax MCP server connected at `https://mcp.zip-tax.com`
 
-If the user hasn't connected the ZipTax MCP server yet, guide them to:
+If the user hasn't connected the Ziptax MCP server yet, guide them to:
 
 1. Get an API key at https://platform.zip.tax
 2. Connect the MCP server at `https://mcp.zip-tax.com/` and send the API key in a request header: either `X-API-KEY: YOUR_API_KEY` or `Authorization: Bearer YOUR_API_KEY`
 
 ## Usage and billing
 
-Each `lookup_tax_rate` call is one billable API call on the user's API key, the same as calling the Ziptax API directly. This is true whether the lookup uses an address, lat/lng, or a postal code, and whether or not the result was cached.
+Each `lookup_tax_rate` call is one billable API call on the user's API key, the same as calling the Ziptax API directly. This is true whether the lookup uses an address, lat/lng, or a postal code, and whether or not the result was cached. A lookup that finds no matching rate still counts. Calls rejected before the lookup runs (missing or invalid key, invalid parameters, plan restrictions, rate limits) don't count.
 
 `get_account_metrics` is free. It doesn't count toward billable API calls.
 
@@ -38,9 +38,9 @@ For how billable API calls are counted, see [Pricing and billing](https://docs.z
 
 ### Avoid wasted calls
 
-- **Reuse results.** If you already looked up a location with the same parameters in this conversation, reuse that result instead of calling `lookup_tax_rate` again.
+- **Reuse results.** If you already looked up a location with the same parameters within the current task, reuse that result instead of calling `lookup_tax_rate` again.
 - **No speculative lookups.** Only call `lookup_tax_rate` for a location the user actually needs. Do not make extra lookups to compare inputs or "double check" a result.
-- **Plan bulk work first.** Before looking up many addresses, tell the user how many billable API calls it will take (one per lookup). Offer to check their usage with `get_account_metrics` first.
+- **Plan bulk work first.** Before looking up many addresses, tell the user how many billable API calls it will take (one per lookup). Offer to check their usage with `get_account_metrics` first, and wait for the user to confirm before you start.
 
 ## Available Tools
 
@@ -52,11 +52,11 @@ Looks up sales and use tax rates for a US or Canadian location. Returns jurisdic
 
 Use the most precise input available:
 
-- **Street address** (`address`): The recommended default. ZipTax geocodes the address down to the rooftop and returns the single rate that applies at that location, adjusted for unincorporated areas and special tax jurisdictions. Use this whenever the user has a shipping address, billing address, or physical storefront.
+- **Street address** (`address`): The recommended default. Ziptax geocodes the address down to the rooftop and returns the single rate that applies at that location, adjusted for unincorporated areas and special tax jurisdictions. Use this whenever the user has a shipping address, billing address, or physical storefront.
 - **Coordinates** (`lat` + `lng`): Same door-level precision as an address. Use this when coordinates are already known, such as in mobile or mapping applications.
 - **ZIP code only** (`postalcode`): The least precise option, and a fallback rather than a shortcut. A postal code lookup returns *every* rate that overlaps the ZIP rather than one authoritative rate, does not adjust for unincorporated areas or special tax jurisdictions, and a single ZIP can span multiple cities, counties, and districts. Use it only when no street address or coordinates are available. For calculating tax on an order or filing returns, always prefer `address` or `lat`/`lng`.
 
-All three lookup methods are available on every ZipTax plan, including the free tier. Do not tell the user that address or coordinate lookups require an upgrade.
+All three lookup methods are available on every Ziptax plan, including the free tier. Do not tell the user that address or coordinate lookups require an upgrade.
 
 Some parameters *are* plan-gated and return a 403 when the account lacks the entitlement: `country_code=CA` (code 112), `taxability_code` (code 113), and `historical`. Each requires a Pro or Enterprise plan.
 
@@ -103,7 +103,7 @@ The response contains several sections:
 When displaying tax rate results:
 
 1. **Lead with the total combined rate** from `taxSummaries` (e.g., "The total sales tax rate is 7.75%").
-2. **Break down by jurisdiction** using `baseRates` — show state, county, city, and any district rates as a table.
+2. **Break down by jurisdiction** using `baseRates`. Show state, county, city, and any district rates as a table.
 3. **Include both sales and use tax** if they differ.
 4. **Note service and freight taxability** when relevant to the user's question.
 5. **Mention the normalized address** from `addressDetail` so the user can confirm the location was resolved correctly.
@@ -129,7 +129,7 @@ Tax rates for 200 Spectrum Center Dr, Irvine, CA 92618:
 
 Returns account usage metrics and quota information. Takes no parameters. Authentication is handled via the API key header.
 
-This call is free and doesn't count toward billable API calls. Use this tool when the user asks about their API usage, how many calls they have left, account status, or rate limits. Also suggest it before bulk or looped lookups, so the user can confirm they have enough billable API calls left.
+This call is free and doesn't count toward billable API calls. Use this tool when the user asks about their API usage, how many calls they have left, account status, or rate limits. Also suggest it before bulk or looped lookups, so the user can see how many billable API calls they've used this period.
 
 ## Common Workflows
 
@@ -191,10 +191,10 @@ Product rules require a Pro or Enterprise plan. A response code of 113 means the
 |---|---|---|
 | "Missing API key. Send it in the X-API-KEY header or as a Bearer token in the Authorization header. Get a key at https://platform.zip.tax" | No API key was sent in a request header | Ask the user to check that their MCP client configuration sends the API key in the `X-API-KEY` header or as a Bearer token in the `Authorization` header |
 | "Provide a location: a full street address, or both lat and lng" | No location was provided | Ask the user for a street address, or coordinates if they have them |
-| "ZipTax API error" | The underlying API returned an error | Check the error details — could be an invalid key, expired account, or rate limit. Direct the user to https://platform.zip.tax |
+| "ZipTax API error" | The underlying API returned an error | Check the error details. It could be an invalid key, expired account, or rate limit. Direct the user to https://platform.zip.tax |
 
 ## Additional Resources
 
-- ZipTax API documentation: https://docs.zip.tax
+- Ziptax API documentation: https://docs.zip.tax
 - Get an API key: https://platform.zip.tax
-- ZipTax MCP server reference: https://docs.zip.tax/guides/agents-and-llms/mcp-server
+- Ziptax MCP server reference: https://docs.zip.tax/guides/agents-and-llms/mcp-server
